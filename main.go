@@ -16,8 +16,8 @@ func main() {
 
 	err := wails.Run(&options.App{
 		Title:         "AutoSync Pro",
-		Width:         720,
-		Height:        520,
+		Width:         700,
+		Height:        800,
 		DisableResize: true,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
