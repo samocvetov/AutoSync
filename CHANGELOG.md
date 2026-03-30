@@ -2,6 +2,13 @@
 
 All notable changes to this project are recorded in this file.
 
+## [1.0.23] - 2026-03-30
+
+### Changed
+- Replaced the placeholder Wails app icon with a project icon asset for Windows desktop builds.
+- Switched the Windows resource build to use a generated project icon PNG instead of the old placeholder `.ico`.
+- Added an upstream sync script for `ffmpeg-over-ip` Windows release zips and stopped treating those large zip artifacts as files that belong in Git.
+
 ## [1.0.22] - 2026-03-30
 
 ### Added

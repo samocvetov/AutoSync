@@ -3,6 +3,7 @@
 .autosync-runtime/
 *.exe
 *.syso
+third_party/windows/*.zip
 /autosync-studio
 /autosync-render-server
 /autosync-studio-desktop

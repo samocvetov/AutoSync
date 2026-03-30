@@ -3,7 +3,7 @@ $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $version = (Get-Content (Join-Path $root "VERSION") -Raw).Trim()
 $goWinres = "C:\Users\sysop\go\bin\go-winres.exe"
-$icon = Join-Path $root "build\windows\icon.ico"
+$icon = Join-Path $root "build\windows\icon.png"
 
 if (-not (Test-Path $goWinres)) {
   throw "go-winres not found at $goWinres"
