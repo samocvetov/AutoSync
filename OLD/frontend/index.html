@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>AutoSync Pro 8.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+        body { font-family: 'Montserrat', sans-serif; background-color: #0e1117; color: #fafafa; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-size: 13px; letter-spacing: -0.01em; }
+        
+        .container { width: 100%; max-width: 700px; background: #1a1c23; padding: 15px; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); display: flex; flex-direction: column; height: 96vh; border: 1px solid #2d2f39; }
+        
+        h2 { text-align: center; color: #fff; margin-bottom: 12px; font-size: 18px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+        
+        .tabs { display: flex; gap: 2px; margin-bottom: 12px; flex-shrink: 0; background-color: #0e1117; padding: 2px; border-radius: 6px; }
+        .tab-btn { flex: 1; padding: 8px 5px; background: transparent; border: none; color: #888; border-radius: 4px; cursor: pointer; transition: all 0.2s ease; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.02em; }
+        .tab-btn:hover { color: #fff; background-color: rgba(255,255,255,0.03); }
+        .tab-btn.active { background: #ff4b4b; color: #fff; box-shadow: 0 2px 8px rgba(255, 75, 75, 0.3); }
+        
+        .content-area { flex-grow: 0; display: flex; flex-direction: column; padding-bottom: 2px; }
+        .view-section { display: none; height: 100%; animation: fadeIn 0.15s ease; }
+        .view-section.active { display: flex; flex-direction: column; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .card { background: transparent; padding: 10px 0; border-bottom: 1px solid #2d2f39; margin-bottom: 8px; }
+        .card:last-child { border-bottom: none; margin-bottom: 0; }
+
+        .input-group { display: flex; gap: 0; margin-bottom: 6px; align-items: stretch; border: 1px solid #3b3c46; border-radius: 4px; background: #0e1117; transition: border-color 0.2s; overflow: hidden; }
+        .input-group:focus-within { border-color: #ff4b4b; box-shadow: 0 0 0 2px rgba(255, 75, 75, 0.15); }
+        
+        input[type="text"], input[type="password"], input[type="number"] { flex: 1; padding: 7px 10px; border: none; background: transparent; color: #fff; font-family: 'Montserrat', sans-serif; font-size: 13px; outline: none; }
+        input[type="text"]::placeholder, input[type="password"]::placeholder { color: #666; font-size: 12px; }
+        
+        .browse-btn { padding: 0 15px; background: transparent; border: none; border-left: 1px solid #3b3c46; color: #aaa; cursor: pointer; font-size: 11px; font-weight: 600; text-transform: uppercase; transition: all 0.2s; font-family: 'Montserrat', sans-serif; }
+        .browse-btn:hover { background-color: rgba(255,255,255,0.05); color: #fff; }
+        
+        .radio-group { display: flex; gap: 15px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; }
+        label { cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px; color: #eee; margin: 0; user-select: none; font-weight: 400; }
+        input[type="radio"], input[type="checkbox"] { accent-color: #ff4b4b; width: 16px; height: 16px; cursor: pointer; transition: transform 0.1s ease; }
+        input[type="radio"]:active, input[type="checkbox"]:active { transform: scale(0.9); }
+
+        .slider-row { display: flex; justify-content: space-between; align-items: center; gap: 10px;}
+        input[type="range"] { width: 100%; cursor: pointer; accent-color: #ff4b4b; height: 16px; background: transparent; }
+        .crf-val { font-size: 14px; color: #ff4b4b; font-weight: 600; min-width: 30px; text-align: right; font-family: monospace; }
+        
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; align-items: center;}
+        .custom-select { padding: 6px 10px; border-radius: 4px; background: #0e1117; color: #fff; border: 1px solid #3b3c46; font-family: 'Montserrat', sans-serif; outline: none; font-size: 12px; width: 100%; cursor: pointer; transition: border-color 0.2s; }
+        .custom-select:focus { border-color: #ff4b4b; }
+        
+        .server-section label, #viewServer input[type="number"], #viewServer input[type="text"] { color: #f28c8c; }
+        .server-section .input-group, #viewServer .input-group { border-color: #592e2e; background: #261515;}
+        #viewServer .input-group:focus-within { border-color: #ff4b4b; }
+        
+        .tg-section label, #viewTgBot input[type="password"] { color: #a1c8ff; }
+        .tg-section .input-group { border-color: #2e4159; background: #151b26; }
+        #viewTgBot .input-group:focus-within { border-color: #23395d; }
+        #viewTgBot p { font-size: 12px; color: #888; margin-top: 0; text-align: center; margin-bottom: 10px; font-weight: 400; }
+        #viewTgBot b { color: #fff; font-weight: 600; }
+        
+        /* НИЖНИЙ БЛОК: Занимает все свободное пространство */
+        .bottom-bar { margin-top: 10px; border-top: 1px solid #2d2f39; padding-top: 12px; flex-grow: 1; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+        
+        .out-section { display: flex; gap: 6px; }
+        .out-section .input-group { margin-bottom: 0; flex: 1; }
+        
+        /* ТЕРМИНАЛ: Жестко растягиваем на все 100% свободного места */
+        .log-box { 
+            display: none; 
+            font-size: 11px; 
+            color: #a7f3d0; 
+            background: #0a0c10; 
+            padding: 8px 10px; 
+            border-radius: 4px; 
+            flex-grow: 1; 
+            height: 0; 
+            min-height: 100px;
+            overflow-y: auto; 
+            white-space: pre-wrap; 
+            font-family: monospace; 
+            border: 1px solid #2d2f39; 
+            width: 100%;
+            scrollbar-width: thin;
+            scrollbar-color: #333 #0a0c10;
+        }
+        .log-box.active { display: block; }
+        .log-box::-webkit-scrollbar { width: 6px; }
+        .log-box::-webkit-scrollbar-track { background: #0a0c10; }
+        .log-box::-webkit-scrollbar-thumb { background-color: #333; border-radius: 3px; }
+
+        .btn-row { display: flex; gap: 8px; margin-top: 2px; }
+        
+        .run-btn { flex: 3; padding: 12px; background: #4f46e5; border: none; border-radius: 6px; color: #fff; font-weight: 600; cursor: pointer; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; font-family: 'Montserrat', sans-serif; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2); }
+        .run-btn:hover { background: #6366f1; box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3); }
+        .run-btn:active { transform: translateY(1px); box-shadow: 0 2px 6px rgba(79, 70, 229, 0.2); }
+        
+        .run-btn.tg-theme { background: #23395d; box-shadow: 0 4px 12px rgba(35, 57, 93, 0.3); }
+        .run-btn.tg-theme:hover { background: #2d4671; }
+        
+        .run-btn:disabled, .cancel-btn:disabled { background: #2d2f39 !important; color: #666 !important; cursor: not-allowed !important; box-shadow: none !important; transform: none !important;}
+        
+        .cancel-btn { flex: 1; padding: 12px; background: #2d2f39; border: 1px solid #3b3c46; border-radius: 6px; color: #aaa; font-weight: 600; cursor: pointer; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; font-family: 'Montserrat', sans-serif;}
+        .cancel-btn:hover { background: #3b3c46; color: #fff; border-color: #4a4b50; }
+        .cancel-btn:active { background: #2d2f39; transform: translateY(1px); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>AutoSync Pro 8.0</h2>
+        <div class="tabs">
+            <button class="tab-btn active" id="tabFastSyncBtn">Быстрый Синхрон</button>
+            <button class="tab-btn" id="tabMulticamBtn">Мультикам</button>
+            <button class="tab-btn" id="tabAiCombineBtn">ИИ-Комбайн</button>
+            <button class="tab-btn" id="tabServerBtn">Сервер</button>
+            <button class="tab-btn" id="tabTgBotBtn">TG Бот</button>
+        </div>
+        
+        <div class="content-area">
+            <div id="viewFastSync" class="view-section active">
+                <div class="card" style="border-bottom:none;">
+                    <p style="font-size: 12px; color: #aaa; margin-top: 0; margin-bottom: 8px;">Мгновенная замена звука на видео (без потери качества).</p>
+                    <div class="input-group"><input type="text" id="fsVideoPath" placeholder="Видеофайл" readonly /><button class="browse-btn" id="btnFsVideo">Обзор</button></div>
+                    <div class="input-group" style="margin-bottom:0;"><input type="text" id="fsAudioPath" placeholder="Мастер-аудио (Хороший звук)" readonly /><button class="browse-btn" id="btnFsAudio">Обзор</button></div>
+                </div>
+            </div>
+            
+            <div id="viewMulticam" class="view-section">
+                <div class="card" style="border-bottom:none;">
+                    <div class="input-group">
+                        <input type="text" id="vPath" placeholder="Камера 1 (Крупный план)" readonly>
+                        <button class="browse-btn" id="btnV1">ОБЗОР</button>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="vPath2" placeholder="Камера 2 (Крупный план)" readonly>
+                        <button class="browse-btn" id="btnV2">ОБЗОР</button>
+                    </div>
+
+                    <div class="input-group" style="margin-top: 15px;">
+                        <input type="text" id="vPathWide" placeholder="Общий план (Для нарезки) - .mp4" readonly>
+                        <button class="browse-btn" id="btnVWide">ОБЗОР</button>
+                    </div>
+                    
+                    <button class="run-btn" style="background-color: #ffaa00; margin-bottom: 15px; width: 100%; color: black; font-weight: bold;" onclick="splitWideCam()">✂️ СОЗДАТЬ СРЕДНИЕ ПЛАНЫ ИЗ ОБЩЕГО</button>
+
+                    <div class="input-group">
+                        <input type="text" id="vPath3" placeholder="Камера 3 (Левая часть Общего плана)" readonly>
+                        <button class="browse-btn" id="btnV3">ОБЗОР</button>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="vPath4" placeholder="Камера 4 (Правая часть Общего плана)" readonly>
+                        <button class="browse-btn" id="btnV4">ОБЗОР</button>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="aPath" placeholder="Мастер-аудио - .wav" readonly>
+                        <button class="browse-btn" id="btnA">ОБЗОР</button>
+                    </div>
+                
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; margin-top: 10px;">
+                        <label style="color: #aaa; font-size: 11px; font-weight: 600; text-transform: uppercase; margin: 0;">🔑 Ключ AssemblyAI</label>
+                        <a href="https://www.assemblyai.com/" target="_blank" style="color: #4f46e5; font-size: 11px; text-decoration: none; font-weight: 600;">Получить ключ →</a>
+                    </div>
+                    <input type="password" id="apiKey" placeholder="Вставьте ваш API Key..." style="width: 100%; margin-bottom: 12px; border-color: #3b3c46;" class="custom-select" />
+                    
+                    <div class="radio-group" style="margin-bottom: 12px;">
+                        <label><input type="radio" name="mainCam" value="1"> Приоритет паузы: Кам. 1</label>
+                        <label><input type="radio" name="mainCam" value="2" checked> Приоритет паузы: Кам. 2</label>
+                        <label style="color: #a7f3d0; font-weight: bold; margin-left: 10px;"><input type="checkbox" id="mcUseGPU"> 🚀 GPU</label>
+                        
+                        <select id="mcTestDuration" class="custom-select" style="width: auto; margin-left: auto;">
+                            <option value="0">Рендерить полностью</option>
+                            <option value="120">ТЕСТ (2 мин)</option>
+                            <option value="300">ТЕСТ (5 мин)</option>
+                            <option value="600">ТЕСТ (10 мин)</option>
+                        </select>
+                    </div>
+                    
+                    <div style="border-top: 1px solid #2d2f39; padding-top: 10px;">
+                        <span style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: 600;">Качество сборки (CRF):</span>
+                        <div class="slider-row" style="margin-top: 5px;">
+                            <input type="range" id="mcCrfSlider" min="18" max="28" value="23">
+                            <span id="mcCrfLabel" class="crf-val">23</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="viewAiCombine" class="view-section">
+                <div class="card">
+                    <div class="input-group" style="margin-bottom:0;">
+                        <input type="text" id="cPath" placeholder="Готовый подкаст (RESULT.mp4)" readonly />
+                        <button class="browse-btn" id="btnC">Файлы</button>
+                    </div>
+                </div>
+                <div class="card slider-area">
+                    <div class="slider-row">
+                        <input type="range" id="crfSlider" min="18" max="32" value="23">
+                        <span id="crfLabel" class="crf-val">23</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="options-grid">
+                        <label><input type="checkbox" id="cUseGPU"> Использовать GPU</label>
+                        <select id="cResolution" class="custom-select">
+                            <option value="original">Разрешение: Оригинал</option>
+                            <option value="1080">Сжать до 1080p</option>
+                            <option value="720">Сжать до 720p</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card" style="border-bottom:none;">
+                    <input type="password" id="geminiKey" placeholder="Gemini API Ключ (Для Магии AI-нарезки)" style="width: 100%; margin-bottom: 10px; border-color: #5d2e7d;" class="custom-select" />
+                    <div class="options-grid" style="border-top: 1px solid #2d2f39; padding-top: 8px;">
+                        <label style="color: #c985ff;"><input type="checkbox" id="aiMagicCheck"> Магия AI: Нарезать Shorts</label>
+                    </div>
+                    <textarea id="aiPrompt" style="width: 100%; height: 60px; background: #0e1117; color: #fff; border: 1px solid #3b3c46; border-radius: 4px; padding: 6px; font-size: 11px; resize: none; outline: none; margin-top: 6px; font-family: 'Montserrat', sans-serif;">Ты продюсер Reels. Найди от 5 до 10 виральных фрагментов (15-60 сек). Верни ТОЛЬКО JSON: [{"start": 12000, "end": 45000, "title": "Название"}]</textarea>
+                </div>
+            </div>
+
+            <div id="viewServer" class="view-section">
+                <div class="card" style="border-bottom:none;">
+                    <div class="input-group">
+                        <span style="width: 70px; color:#888; font-size: 11px; padding-left: 10px; display: flex; align-items: center; border-right: 1px solid #3b3c46; font-weight: 600; text-transform: uppercase;">Порт:</span>
+                        <input type="number" id="hostPort" value="5050" />
+                    </div>
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <span style="width: 70px; color:#888; font-size: 11px; padding-left: 10px; display: flex; align-items: center; border-right: 1px solid #3b3c46; font-weight: 600; text-transform: uppercase;">Пароль:</span>
+                        <input type="text" id="hostSecret" value="12345" />
+                    </div>
+                </div>
+            </div>
+
+            <div id="viewTgBot" class="view-section">
+                <div class="card tg-section" style="border-bottom:none;">
+                    <p>Вставьте Токен от <b>BotFather</b> и Ключ от <b>AssemblyAI</b>. Бот научится делать кружочки и расшифровывать голос.</p>
+                    <div class="input-group" style="margin-bottom: 4px;">
+                        <span style="width: 70px; color:#888; font-size: 11px; padding-left: 10px; display: flex; align-items: center; border-right: 1px solid #3b3c46; font-weight: 600; text-transform: uppercase;">Токен:</span>
+                        <input type="password" id="tgToken" placeholder="123456789:ABCdefGHI..." />
+                    </div>
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <span style="width: 70px; color:#888; font-size: 11px; padding-left: 10px; display: flex; align-items: center; border-right: 1px solid #3b3c46; font-weight: 600; text-transform: uppercase;">AI Ключ:</span>
+                        <input type="password" id="tgAiKey" placeholder="API Key" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bottom-bar">
+            <div class="out-section" id="globalOutGroup">
+                <div class="input-group" style="margin-bottom: 0;">
+                    <input type="text" id="globalOut" placeholder="Папка для сохранения" readonly />
+                    <button class="browse-btn" id="btnGlobalOut" style="background:#2d2f39; border-left: none;">Выбрать</button>
+                </div>
+            </div>
+
+            <div id="logBoxFastSync" class="log-box active">Готов к быстрой синхронизации...</div>
+            <div id="logBoxMulticam" class="log-box">Готов к монтажу камер...</div>
+            <div id="logBoxAiCombine" class="log-box">Ожидание файла для сжатия и ИИ...</div>
+            <div id="logBoxServer" class="log-box">Ожидание запуска сервера...</div>
+            <div id="logBoxTgBot" class="log-box" style="color: #a1c8ff;">Бот остановлен...</div>
+            
+            <div class="btn-row">
+                <button class="run-btn" id="globalStartBtn">НАЧАТЬ МОНТАЖ</button>
+                <button class="cancel-btn" id="globalCancelBtn" disabled>ОТМЕНА</button>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "AutoSync Render Server 1.0.21",
+  "outputfilename": "AutoSyncRenderServerDesktop-1.0.21",
+  "author": {
+    "name": "AutoSync Studio",
+    "email": "noreply@autosync.local"
+  }
+}

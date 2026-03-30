@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoSync Render Server</title>
+  <style>
+    :root {
+      --bg: #10151b;
+      --panel: #171f29;
+      --panel-2: #1e2935;
+      --line: #2d3c4d;
+      --text: #e7eef8;
+      --muted: #9db0c5;
+      --green: #37d39a;
+      --orange: #ff9a3d;
+      --red: #ff647c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #0d1117, #111a24);
+      color: var(--text);
+    }
+    .wrap {
+      width: min(1200px, calc(100% - 32px));
+      margin: 24px auto 40px;
+    }
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    }
+    .hero {
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .hero h1, .panel h2 { margin: 0 0 10px; }
+    .hero p, .muted { color: var(--muted); }
+    .lang-switch {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .lang-btn {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .lang-btn.active {
+      background: var(--orange);
+      border-color: var(--orange);
+      color: #111;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 18px;
+    }
+    .panel { padding: 20px; }
+    .field { margin-bottom: 12px; }
+    .field label {
+      display: block;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .field input, .field textarea, .field select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: var(--panel-2);
+      color: var(--text);
+      font: inherit;
+      outline: none;
+    }
+    .field textarea { min-height: 96px; resize: vertical; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .primary { background: var(--orange); color: #111; }
+    .danger { background: var(--red); color: white; }
+    .secondary { background: rgba(255,255,255,.08); color: var(--text); }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
+    .card {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .card-title { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+    .card-value { font-size: 24px; margin-top: 8px; }
+    .ok { color: var(--green); }
+    .warn { color: var(--orange); }
+    .list, .logs {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(0,0,0,.16);
+      padding: 14px;
+      min-height: 180px;
+      white-space: pre-wrap;
+      font-family: ui-monospace, monospace;
+      overflow: auto;
+    }
+    @media (max-width: 960px) {
+      .grid { grid-template-columns: 1fr; }
+      .cards { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; }
+      .hero-top { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="hero-top">
+        <div>
+          <h1 data-i18n="hero_title">AutoSync Render Server</h1>
+          <p class="muted" data-i18n="hero_subtitle">Отдельный менеджер для `ffmpeg-over-ip-server` на Windows: запускает render-node, показывает активные задачи, подключённых клиентов и логи в реальном времени.</p>
+        </div>
+        <div class="lang-switch">
+          <button class="lang-btn active" id="langRuBtn" type="button">RU</button>
+          <button class="lang-btn" id="langEnBtn" type="button">EN</button>
+        </div>
+      </div>
+      <div id="bundleInfo" class="muted" style="margin-top: 12px;"></div>
+    </section>
+
+    <div class="grid">
+      <section class="panel">
+        <h2 data-i18n="config_title">Конфигурация сервера</h2>
+        <div class="field">
+          <label for="serverBinary" data-i18n="label_server_binary">Путь к бинарнику сервера</label>
+          <input id="serverBinary" placeholder="C:\\render-node\\ffmpeg-over-ip-server.exe" data-i18n-placeholder="placeholder_server_binary">
+        </div>
+        <div class="field">
+          <label for="ffmpegPath" data-i18n="label_ffmpeg_path">Путь к patched FFmpeg</label>
+          <input id="ffmpegPath" placeholder="C:\\render-node\\ffmpeg.exe" data-i18n-placeholder="placeholder_ffmpeg_path">
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="serverAddress" data-i18n="label_address">Адрес</label>
+            <input id="serverAddress" value="0.0.0.0:5050">
+          </div>
+          <div class="field">
+            <label for="authSecret" data-i18n="label_auth_secret">Секрет доступа</label>
+            <input id="authSecret" value="change-me">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="logMode" data-i18n="label_log_mode">Режим логирования</label>
+            <select id="logMode">
+              <option value="stdout">stdout</option>
+              <option value="stderr">stderr</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="debugFlag" data-i18n="label_debug">Отладка</label>
+            <select id="debugFlag">
+              <option value="true" data-i18n-option="option_true">true</option>
+              <option value="false" data-i18n-option="option_false">false</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="rewrites" data-i18n="label_rewrites">Rewrites, по одной JSON-строке на правило</label>
+          <textarea id="rewrites">["h264_nvenc","h264_qsv"]
+["hevc_nvenc","hevc_qsv"]</textarea>
+        </div>
+        <div class="actions">
+          <button class="primary" id="startBtn" type="button" data-i18n="btn_start">Запустить сервер</button>
+          <button class="danger" id="stopBtn" type="button" data-i18n="btn_stop">Остановить сервер</button>
+          <button class="secondary" id="refreshBtn" type="button" data-i18n="btn_refresh">Обновить</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2 data-i18n="status_title">Статус</h2>
+        <div class="cards">
+          <div class="card">
+            <div class="card-title" data-i18n="card_server">Сервер</div>
+            <div class="card-value" id="serverState">offline</div>
+          </div>
+          <div class="card">
+            <div class="card-title" data-i18n="card_clients">Подключённые клиенты</div>
+            <div class="card-value" id="clientCount">0</div>
+          </div>
+          <div class="card">
+            <div class="card-title" data-i18n="card_jobs">Активные задачи</div>
+            <div class="card-value" id="jobCount">0</div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-bottom: 12px;">
+          <div>
+            <h3 data-i18n="section_clients">Подключённые клиенты</h3>
+            <div class="list" id="clientsBox" data-i18n="clients_idle">Подключённых клиентов пока нет.</div>
+          </div>
+          <div>
+            <h3 data-i18n="section_jobs">Активные задачи</h3>
+            <div class="list" id="jobsBox" data-i18n="jobs_idle">Активных задач пока нет.</div>
+          </div>
+        </div>
+
+        <h3 data-i18n="section_logs">Логи</h3>
+        <div class="logs" id="logsBox" data-i18n="logs_idle">Ожидание логов...</div>
+      </section>
+    </div>
+  </div>
+
+  <script src="/main.js"></script>
+</body>
+</html>

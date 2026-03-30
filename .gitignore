@@ -1,0 +1,10 @@
+.DS_Store
+.cache/
+.autosync-runtime/
+*.exe
+*.syso
+/autosync-studio
+/autosync-render-server
+/autosync-studio-desktop
+/autosync-render-server-desktop
+/studio-desktop

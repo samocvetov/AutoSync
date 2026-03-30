@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "platforms": {
+    "windows-amd64": {
+      "ffmpeg": {
+        "version": "7.1.3-ffmpeg-over-ip-v5",
+        "source": "third_party/windows/ffmpeg/current/ffmpeg.exe",
+        "notes": "Place the Windows ffmpeg binary here before embedding."
+      },
+      "ffprobe": {
+        "version": "7.1.3-ffmpeg-over-ip-v5",
+        "source": "third_party/windows/ffmpeg/current/ffprobe.exe",
+        "notes": "Keep ffprobe in the same release family as ffmpeg."
+      },
+      "ffmpegOverIPClient": {
+        "version": "v5.0.0",
+        "source": "third_party/windows/ffmpeg-over-ip/current/ffmpeg-over-ip-client.exe",
+        "notes": "Client binary used by AutoSync Studio when remote rendering is enabled."
+      },
+      "ffmpegOverIPServer": {
+        "version": "v5.0.0",
+        "source": "third_party/windows/ffmpeg-over-ip/current/ffmpeg-over-ip-server.exe",
+        "notes": "Server binary used by AutoSync Render Server."
+      },
+      "patchedFFmpeg": {
+        "version": "7.1.3-ffmpeg-over-ip-v5",
+        "source": "third_party/windows/ffmpeg-over-ip/current/ffmpeg.exe",
+        "notes": "Patched ffmpeg distributed with ffmpeg-over-ip releases."
+      },
+      "patchedFFprobe": {
+        "version": "7.1.3-ffmpeg-over-ip-v5",
+        "source": "third_party/windows/ffmpeg-over-ip/current/ffprobe.exe",
+        "notes": "Patched ffprobe distributed with ffmpeg-over-ip releases."
+      }
+    }
+  }
+}
