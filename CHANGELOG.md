@@ -2,6 +2,210 @@
 
 All notable changes to this project are recorded in this file.
 
+## [1.0.86] - 2026-04-02
+
+### Changed
+- Widened the safe subtitle area and reduced vertical `Montserrat` size slightly so centered captions stay on two lines instead of wrapping into three or four lines.
+
+## [1.0.85] - 2026-04-02
+
+### Changed
+- Switched vertical `Montserrat` subtitles from whole-utterance captions to sentence-by-sentence captions, so only one sentence is shown at a time while still holding it for its spoken interval.
+
+## [1.0.84] - 2026-04-02
+
+### Changed
+- Switched vertical `Montserrat` captions to sentence-level subtitle chunks so a full spoken phrase stays on screen for the duration of the utterance instead of being broken into shorter word groups.
+
+## [1.0.83] - 2026-04-02
+
+### Changed
+- Forced vertical `Montserrat` captions into a balanced two-line layout and added a light ASS blur pass for smoother text edges.
+
+## [1.0.82] - 2026-04-02
+
+### Changed
+- Raised the vertical `Montserrat` subtitle block higher, widened its safe area, and made line wrapping more aggressive so captions break into two centered lines more consistently.
+
+## [1.0.81] - 2026-04-02
+
+### Changed
+- Raised, widened, and enlarged the vertical `Montserrat` subtitle layout to better match the reference lower-third style.
+
+## [1.0.80] - 2026-04-02
+
+### Fixed
+- Disabled ASS boxed background mode when subtitle background opacity is set to `0%`, so captions render with outline only and no visible subtitle box.
+
+## [1.0.79] - 2026-04-02
+
+### Changed
+- Added a dedicated dark text outline to subtitle rendering so `Montserrat` captions have a clearer stroke on both shorts and full interview exports.
+
+## [1.0.78] - 2026-04-02
+
+### Added
+- Embedded the `Montserrat` subtitle font into the app and wired ffmpeg/libass to load it from the app runtime instead of relying on system fonts.
+
+### Changed
+- Tuned subtitle layout for `Montserrat` to render as centered two-line captions with a calmer lower-third placement for both shorts and full interview exports.
+
+## [1.0.77] - 2026-04-02
+
+### Added
+- Added `Montserrat` to subtitle font choices in Shorts / Reels.
+
+### Changed
+- Replaced subtitle background opacity steps with `0% / 10% / 25% / 50% / 75% / 100%`.
+- Made `0%` subtitle background opacity mean no subtitle background for both shorts renders and full interview subtitle exports.
+
+## [1.0.76] - 2026-04-02
+
+### Fixed
+- Normalized ffmpeg progress reporting in Shorts / Reels by parsing progress from stderr fallback lines and filtering noisy muxing summary lines.
+
+## [1.0.75] - 2026-04-02
+
+### Fixed
+- Corrected ASS subtitle box styling so background transparency is actually applied to both shorts captions and full interview subtitles.
+
+## [1.0.74] - 2026-04-02
+
+### Fixed
+- Reworked shorts caption rendering to use subtitle files instead of large inline drawtext graphs, avoiding `Cannot allocate memory` on long captioned clip renders.
+
+### Added
+- Added subtitle background opacity control and applied subtitle style settings to both shorts exports and full interview subtitle exports.
+
+## [1.0.73] - 2026-04-02
+
+### Added
+- Added subtitle background opacity control and wired subtitle style controls into both shorts renders and full interview subtitle exports.
+
+### Changed
+- Grouped subtitle font, background color, and background opacity onto a single row in Shorts / Reels.
+
+## [1.0.72] - 2026-04-02
+
+### Added
+- Added subtitle customization controls for full interview exports: selectable font presets and subtitle background color.
+
+### Fixed
+- Tightened full-interview subtitle wrapping and ASS styling so captions stay inside the video frame more reliably.
+
+## [1.0.71] - 2026-04-02
+
+### Changed
+- Replaced the full-interview subtitle export path with a dedicated subtitle-file pipeline built around external `.ass`/`.srt` assets instead of giant inline `drawtext` graphs.
+
+### Added
+- Full-interview subtitle export now saves reusable `MP4 + SRT + TXT` files for YouTube uploads, translation, and repurposing transcript text.
+
+## [1.0.70] - 2026-04-02
+
+### Fixed
+- Ensured the `.autosync-temp` staging folder is created before writing ffmpeg filter script files for long full-interview subtitle renders.
+
+## [1.0.69] - 2026-04-02
+
+### Fixed
+- Moved oversized full-interview subtitle filter graphs out of the Windows command line into temporary ffmpeg filter script files.
+- This avoids `The filename or extension is too long` when burning subtitles into long interviews.
+
+## [1.0.68] - 2026-04-02
+
+### Fixed
+- Reworked AssemblyAI upload to stream the prepared audio file instead of reading the entire WAV into memory first.
+- Added retry handling for transient AssemblyAI upload failures such as `EOF`, timeouts, and broken connections on long interviews.
+
+## [1.0.67] - 2026-04-02
+
+### Fixed
+- Hardened full-interview subtitle export duration detection by falling back to sync metrics and video stream metadata when `ffprobe format=duration` is missing.
+
+## [1.0.66] - 2026-04-02
+
+### Changed
+- Reworked the `Титры` action in Shorts / Reels into a standalone full-interview subtitle export that no longer depends on `Build plan`.
+
+### Fixed
+- Added a dedicated full-captions backend flow that uploads only audio to AssemblyAI, builds a word-level transcript, and burns subtitles into the entire source interview in its original aspect ratio.
+
+## [1.0.65] - 2026-04-02
+
+### Fixed
+- Explicitly re-enabled Shorts / Reels render actions after `Build plan` so the `Титры` button no longer stays stuck in an inert state.
+- Added immediate log feedback on `Титры` click, making it clear whether the full subtitled export is starting or missing prerequisites.
+
+## [1.0.64] - 2026-04-02
+
+### Fixed
+- Made the new `Full interview with captions` action clickable before Build plan completes, so it now shows a clear validation message instead of silently looking unresponsive.
+- Added full-interview subtitle export through the existing Shorts / Reels pipeline, preserving the source aspect ratio and saving a separate full export plan file.
+
+## [1.0.62] - 2026-04-02
+
+### Changed
+- Replaced the Shorts / Reels progress bar with a proper cancel button and live status messages in the output log.
+- Added cancellable AssemblyAI planning requests and log messages with explicit estimated processing percentages where the API does not provide a real progress field.
+
+## [1.0.63] - 2026-04-02
+
+### Fixed
+- Switched Shorts / Reels burned-in captions to AssemblyAI word-level timings to stop subtitle drift by the end of a clip.
+- Removed multi-line drawtext escaping from shorts captions so stray literal `n` characters no longer appear between words.
+
+## [1.0.61] - 2026-04-02
+
+### Fixed
+- Reworked burned-in Shorts / Reels captions into shorter timed subtitle chunks so vertical exports no longer show one oversized static line.
+- Reduced the clip review card metadata to a compact duration-only line.
+
+## [1.0.60] - 2026-04-02
+
+### Added
+- Added a live progress bar for `Build plan` in Shorts / Reels, driven by a new streaming shorts-plan endpoint.
+
+## [1.0.59] - 2026-04-01
+
+### Fixed
+- Simplified the Shorts / Reels clip list so it no longer shows bulky preview command details.
+- Added scrollable clip review area in Shorts / Reels.
+- Forced burned-in captions to use an explicit Windows font with Cyrillic support to avoid square glyphs.
+
+## [1.0.58] - 2026-04-01
+
+### Fixed
+- Cleaned the Shorts / Reels tab by removing redundant helper text and the long formats summary line.
+- Added a non-stream fallback for Shorts / Reels rendering so `Render selected` still works when streaming fetch is unreliable in the desktop runtime.
+
+## [1.0.57] - 2026-04-01
+
+### Changed
+- Split Shorts / Reels into a dedicated top-level tab and kept API keys in Render Backend so Single-Cam stays compact.
+
+## [1.0.56] - 2026-04-01
+
+### Fixed
+- Forced the Shorts / Reels block to stay visible in Single-Cam by overriding the legacy hidden state from the old sync advanced-toggle CSS.
+
+## [1.0.55] - 2026-04-01
+
+### Fixed
+- Restored the Shorts / Reels AI block visibility in Single-Cam after the move from Render Backend.
+
+## [1.0.54] - 2026-04-01
+
+### Changed
+- Moved the Shorts / Reels workflow into Single-Cam for finished interview videos, with plan review, selected-clip rendering, social presets, captions mode, and saved `plan.json`.
+
+## [1.0.53] - 2026-03-31
+
+### Fixed
+- Restored the stable multicam render flow by reusing measured offsets from the latest Analyze step during Render, preventing Analyze/Render drift on the same material.
+- Added explicit preview-render confirmation and clearer preview status so 2-minute and 5-minute test renders are no longer easy to confuse with full final renders.
+- Reduced remote backend secret exposure by switching runtime remote ffmpeg-over-ip config files to temporary per-run files for actual render execution.
+
 ## [1.0.52] - 2026-03-31
 
 ### Fixed

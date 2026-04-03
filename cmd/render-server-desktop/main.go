@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"log"
 	"time"
@@ -16,8 +17,8 @@ import (
 var assets embed.FS
 
 func main() {
+	app := renderserverapp.NewApp()
 	go func() {
-		app := renderserverapp.NewApp()
 		if err := app.Run(); err != nil {
 			log.Println("render-server http:", err)
 		}
@@ -32,6 +33,9 @@ func main() {
 		MinWidth:      1200,
 		MinHeight:     840,
 		DisableResize: false,
+		OnShutdown: func(ctx context.Context) {
+			app.Shutdown()
+		},
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

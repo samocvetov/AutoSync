@@ -26,7 +26,7 @@ import (
 	windowsbundle "autosyncstudio/third_party/windows"
 )
 
-//go:embed index.html main.js
+//go:embed index.html main.runtime.js
 var staticFiles embed.FS
 
 const serverAppAddr = "127.0.0.1:8521"
@@ -63,6 +63,7 @@ type statusResponse struct {
 	PID               int                      `json:"pid"`
 	Uptime            string                   `json:"uptime"`
 	LastExit          string                   `json:"lastExit"`
+	HasAuthSecret     bool                     `json:"hasAuthSecret"`
 	ServerConfig      serverConfig             `json:"serverConfig"`
 	ServerConfigPath  string                   `json:"serverConfigPath"`
 	ConnectedClients  []clientInfo             `json:"connectedClients"`
@@ -83,7 +84,7 @@ type jobInfo struct {
 	CommandLine string `json:"commandLine"`
 }
 
-func NewApp() *App {
+func defaultServerConfig() serverConfig {
 	cfg := serverConfig{
 		ServerBinary: "ffmpeg-over-ip-server.exe",
 		FFmpegPath:   "ffmpeg.exe",
@@ -106,6 +107,11 @@ func NewApp() *App {
 			}
 		}
 	}
+	return cfg
+}
+
+func NewApp() *App {
+	cfg := defaultServerConfig()
 	return &App{
 		addr:         serverAppAddr,
 		serverConfig: cfg,
@@ -134,7 +140,7 @@ func (a *App) handleIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) handleMainJS(w http.ResponseWriter, r *http.Request) {
-	a.serveEmbeddedFile(w, "main.js", "application/javascript; charset=utf-8")
+	a.serveEmbeddedFile(w, "main.runtime.js", "application/javascript; charset=utf-8")
 }
 
 func (a *App) serveEmbeddedFile(w http.ResponseWriter, name, contentType string) {
@@ -165,6 +171,7 @@ func (a *App) handleConfig(w http.ResponseWriter, r *http.Request) {
 		a.writeError(w, http.StatusBadRequest, "invalid JSON body")
 		return
 	}
+	cfg = a.resolveServerConfig(cfg)
 	if err := validateServerConfig(cfg); err != nil {
 		a.writeError(w, http.StatusBadRequest, err.Error())
 		return
@@ -187,6 +194,7 @@ func (a *App) handleStart(w http.ResponseWriter, r *http.Request) {
 		a.writeError(w, http.StatusBadRequest, "invalid JSON body")
 		return
 	}
+	cfg = a.resolveServerConfig(cfg)
 	if err := validateServerConfig(cfg); err != nil {
 		a.writeError(w, http.StatusBadRequest, err.Error())
 		return
@@ -224,6 +232,7 @@ func (a *App) startServer(cfg serverConfig) error {
 	}
 
 	cmd := exec.Command(cfg.ServerBinary, "--config", configPath)
+	applyWindowsCommandAttrs(cmd)
 	stdoutPipe, _ := cmd.StdoutPipe()
 	stderrPipe, _ := cmd.StderrPipe()
 	if err := cmd.Start(); err != nil {
@@ -248,11 +257,21 @@ func (a *App) stopServer() error {
 	if a.serverCmd == nil || a.serverCmd.Process == nil {
 		return nil
 	}
-	err := a.serverCmd.Process.Kill()
+	err := killCommandTree(a.serverCmd)
 	if err == nil {
 		a.appendLog(fmt.Sprintf("[%s] Stop requested", time.Now().Format(time.RFC3339)))
 	}
 	return err
+}
+
+func (a *App) Shutdown() {
+	a.mu.Lock()
+	cmd := a.serverCmd
+	a.mu.Unlock()
+	if cmd == nil || cmd.Process == nil {
+		return
+	}
+	_ = killCommandTree(cmd)
 }
 
 func (a *App) waitServerProcess(cmd *exec.Cmd) {
@@ -303,11 +322,20 @@ func (a *App) currentStatus() statusResponse {
 	logTail := append([]string(nil), a.logs...)
 	a.mu.Unlock()
 
-	var clients []clientInfo
-	var jobs []jobInfo
+	hasAuthSecret := strings.TrimSpace(cfg.AuthSecret) != ""
+	cfg.AuthSecret = ""
+
+	clients := make([]clientInfo, 0)
+	jobs := make([]jobInfo, 0)
 	if running {
 		clients = detectConnectedClients(cfg.Address, pid)
 		jobs = detectActiveJobs(pid)
+	}
+	if clients == nil {
+		clients = make([]clientInfo, 0)
+	}
+	if jobs == nil {
+		jobs = make([]jobInfo, 0)
 	}
 
 	return statusResponse{
@@ -317,6 +345,7 @@ func (a *App) currentStatus() statusResponse {
 		PID:               pid,
 		Uptime:            uptime,
 		LastExit:          lastExit,
+		HasAuthSecret:     hasAuthSecret,
 		ServerConfig:      cfg,
 		ServerConfigPath:  serverConfigPath(),
 		ConnectedClients:  clients,
@@ -359,6 +388,35 @@ func writeServerConfig(cfg serverConfig) (string, error) {
 	return path, nil
 }
 
+func (a *App) resolveServerConfig(cfg serverConfig) serverConfig {
+	a.mu.Lock()
+	base := a.serverConfig
+	a.mu.Unlock()
+	if isZeroServerConfig(base) {
+		base = defaultServerConfig()
+	}
+
+	if strings.TrimSpace(cfg.ServerBinary) == "" {
+		cfg.ServerBinary = base.ServerBinary
+	}
+	if strings.TrimSpace(cfg.FFmpegPath) == "" {
+		cfg.FFmpegPath = base.FFmpegPath
+	}
+	if strings.TrimSpace(cfg.Address) == "" {
+		cfg.Address = base.Address
+	}
+	if strings.TrimSpace(cfg.AuthSecret) == "" {
+		cfg.AuthSecret = base.AuthSecret
+	}
+	if strings.TrimSpace(cfg.LogMode) == "" {
+		cfg.LogMode = base.LogMode
+	}
+	if cfg.Rewrites == nil || len(cfg.Rewrites) == 0 {
+		cfg.Rewrites = append([]string(nil), base.Rewrites...)
+	}
+	return cfg
+}
+
 func serverConfigPath() string {
 	root := runtimeWorkspaceRoot()
 	_ = os.MkdirAll(filepath.Join(root, ".autosync-runtime"), 0755)
@@ -390,10 +448,39 @@ func validateServerConfig(cfg serverConfig) error {
 	if strings.TrimSpace(cfg.AuthSecret) == "" {
 		return errors.New("authSecret is required")
 	}
-	if strings.TrimSpace(cfg.LogMode) == "" {
-		cfg.LogMode = "stdout"
+	if err := validateListenAddress(cfg.Address); err != nil {
+		return err
+	}
+	switch strings.TrimSpace(cfg.LogMode) {
+	case "", "stdout", "stderr":
+	default:
+		return errors.New("logMode must be stdout or stderr")
 	}
 	return nil
+}
+
+func validateListenAddress(address string) error {
+	host, port, err := net.SplitHostPort(strings.TrimSpace(address))
+	if err != nil {
+		return errors.New("address must be in host:port format")
+	}
+	if strings.TrimSpace(host) == "" {
+		return errors.New("address host is required")
+	}
+	portValue, err := strconv.Atoi(port)
+	if err != nil || portValue < 1 || portValue > 65535 {
+		return errors.New("address port must be between 1 and 65535")
+	}
+	return nil
+}
+
+func isZeroServerConfig(cfg serverConfig) bool {
+	return strings.TrimSpace(cfg.ServerBinary) == "" &&
+		strings.TrimSpace(cfg.FFmpegPath) == "" &&
+		strings.TrimSpace(cfg.Address) == "" &&
+		strings.TrimSpace(cfg.AuthSecret) == "" &&
+		strings.TrimSpace(cfg.LogMode) == "" &&
+		len(cfg.Rewrites) == 0
 }
 
 func detectConnectedClients(address string, serverPID int) []clientInfo {
@@ -410,6 +497,7 @@ func detectConnectedClients(address string, serverPID int) []clientInfo {
 	_ = host
 
 	cmd := exec.Command("netstat", "-ano", "-p", "tcp")
+	applyWindowsCommandAttrs(cmd)
 	var stdout bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stdout
@@ -450,6 +538,7 @@ func detectConnectedClients(address string, serverPID int) []clientInfo {
 func detectActiveJobs(serverPID int) []jobInfo {
 	psScript := fmt.Sprintf(`$ErrorActionPreference='SilentlyContinue'; $pid=%d; Get-CimInstance Win32_Process | Where-Object { $_.ParentProcessId -eq $pid } | Select-Object ProcessId,Name,CommandLine | ConvertTo-Json -Compress`, serverPID)
 	cmd := exec.Command("powershell", "-NoProfile", "-Command", psScript)
+	applyWindowsCommandAttrs(cmd)
 	var stdout bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stdout

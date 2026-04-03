@@ -515,6 +515,66 @@
       background: rgba(255, 255, 255, 0.03);
     }
 
+    .backend-status-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    .backend-status-card {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 10px 12px;
+      min-height: 70px;
+    }
+
+    .backend-status-label {
+      color: #8e95a3;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+
+    .backend-status-value {
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    .backend-status-value.ok {
+      color: #86efac;
+    }
+
+    .backend-status-value.warn {
+      color: #fbbf24;
+    }
+
+    .backend-status-value.error {
+      color: #f87171;
+    }
+
+    .backend-status-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      margin-bottom: 8px;
+    }
+
+    .run-btn.compact {
+      flex: 0 0 auto;
+      min-width: 170px;
+      padding: 10px 14px;
+      font-size: 12px;
+      letter-spacing: 0.03em;
+    }
+
     .bottom-bar {
       margin-top: 10px;
       border-top: 1px solid var(--line);
@@ -580,16 +640,20 @@
       }
 
       .tab-btn {
-        min-width: calc(50% - 2px);
-      }
-
-      .tab-btn {
-        flex: 1 1 calc(33.333% - 2px);
+        flex: 1 1 calc(50% - 2px);
         min-width: 0;
       }
 
       .options-grid {
         grid-template-columns: 1fr;
+      }
+
+      .backend-status-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .backend-status-actions {
+        flex-direction: column;
       }
 
       .input-prefix {
@@ -808,13 +872,34 @@
 
           <div class="input-group" style="margin-top: 8px;">
             <span class="input-prefix" data-i18n="label_remote_address_short">Address</span>
-            <input id="remoteAddress" type="text" placeholder="127.0.0.1:5050" data-i18n-placeholder="placeholder_remote_address">
+            <input id="remoteAddress" type="text" value="127.0.0.1:5050" placeholder="127.0.0.1:5050" data-i18n-placeholder="placeholder_remote_address">
           </div>
 
           <div class="input-group">
             <span class="input-prefix" data-i18n="label_remote_secret_short">Secret</span>
             <input id="remoteSecret" type="password" placeholder="shared-secret" data-i18n-placeholder="placeholder_remote_secret">
           </div>
+
+          <div class="backend-status-actions">
+            <button class="run-btn secondary compact" id="checkBackendBtn" type="button" data-i18n="btn_check_backend">Проверить соединение</button>
+          </div>
+
+          <div class="backend-status-grid">
+            <div class="backend-status-card">
+              <div class="backend-status-label" data-i18n="backend_status_mode">Режим</div>
+              <div class="backend-status-value" id="backendModeStatus">-</div>
+            </div>
+            <div class="backend-status-card">
+              <div class="backend-status-label" data-i18n="backend_status_client">Клиент</div>
+              <div class="backend-status-value" id="backendClientStatus">Не проверено</div>
+            </div>
+            <div class="backend-status-card">
+              <div class="backend-status-label" data-i18n="backend_status_server">Сервер</div>
+              <div class="backend-status-value" id="backendServerStatus">Не проверено</div>
+            </div>
+          </div>
+
+          <div class="mini-note" id="backendStatusNote" data-i18n="backend_status_idle">Здесь можно проверить доступность render backend до запуска рендера.</div>
 
           <details class="advanced-toggle" open>
             <summary>AI настройки</summary>
@@ -833,8 +918,12 @@
                   </select>
                 </div>
                 <div class="input-group">
-                  <span class="input-prefix">AI Key</span>
-                  <input id="aiKey" type="password" placeholder="Gemini / OpenAI API key">
+                  <span class="input-prefix">Gemini API</span>
+                  <input id="geminiAiKey" type="password" placeholder="Gemini API key">
+                </div>
+                <div class="input-group">
+                  <span class="input-prefix">ChatGPT API</span>
+                  <input id="openAiKey" type="password" placeholder="OpenAI API key">
                 </div>
                 <div class="input-group">
                   <span class="input-prefix">Shorts</span>
@@ -856,7 +945,6 @@
 
           <div class="mini-note" data-i18n="multicam_backend_note">Экспорт и финальный multicam-рендер используют тот же backend, что и single-cam режим.</div>
 
-          <div class="chips" id="systemInfo"></div>
         </div>
       </section>
     </div>

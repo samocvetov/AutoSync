@@ -1,11 +1,16 @@
 .DS_Store
 Thumbs.db
 .cache/
+.gocache/
 .autosync-runtime/
 OLD/
 winbundle/
 backups/code/
 internal/appmeta/*.go.*
+*.go.[0-9]*
+*.js.[0-9]*
+*.ps1.[0-9]*
+internal/renderserverapp/main.runtime.js
 *.exe
 *.syso
 third_party/windows/*.zip

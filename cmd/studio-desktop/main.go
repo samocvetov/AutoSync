@@ -1,10 +1,11 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"fmt"
-	"net"
 	"log"
+	"net"
 	"strings"
 	"testing/fstest"
 
@@ -25,9 +26,9 @@ func main() {
 		log.Fatal(err)
 	}
 	backendURL := fmt.Sprintf("http://%s", ln.Addr().String())
+	app := studioapp.NewAppWithAddr(ln.Addr().String())
 
 	go func() {
-		app := studioapp.NewAppWithAddr(ln.Addr().String())
 		if err := app.RunListener(ln); err != nil {
 			log.Println("studio http:", err)
 		}
@@ -49,6 +50,9 @@ func main() {
 		MinWidth:      980,
 		MinHeight:     860,
 		DisableResize: false,
+		OnShutdown: func(ctx context.Context) {
+			app.Shutdown()
+		},
 		AssetServer: &assetserver.Options{
 			Assets: assetFS,
 		},

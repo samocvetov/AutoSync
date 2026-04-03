@@ -1,6 +1,6 @@
 //go:build !windows
 
-package studioapp
+package renderserverapp
 
 import "os/exec"
 

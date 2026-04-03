@@ -2,6 +2,16 @@ $ErrorActionPreference = "Stop"
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $cacheRoot = Join-Path $root ".cache"
+$version = (Get-Content (Join-Path $root "VERSION") -Raw).Trim()
+
+if (-not $version) {
+  throw "VERSION file is empty"
+}
+
+$studioCliExe = "autosync-studio-$version.exe"
+$renderCliExe = "autosync-render-server-$version.exe"
+$studioDesktopExe = "AutoSyncStudioDesktop-$version.exe"
+$renderDesktopExe = "AutoSyncRenderServerDesktop-$version.exe"
 
 $dirs = @(
   $cacheRoot,
@@ -41,16 +51,16 @@ function Build-WailsDesktop {
   go build -work -buildvcs=false -tags production -ldflags "-H windowsgui -w -s" -o $ExpectedExeName $ProjectDir
 }
 
-Write-Host "Building autosync-studio.exe from root package..."
-go build -work -buildvcs=false -o autosync-studio.exe .
+Write-Host "Building $studioCliExe from root package..."
+go build -work -buildvcs=false -o $studioCliExe .
 
-Write-Host "Building autosync-render-server.exe from render-server package..."
-go build -work -buildvcs=false -o autosync-render-server.exe ./cmd/render-server
+Write-Host "Building $renderCliExe from render-server package..."
+go build -work -buildvcs=false -o $renderCliExe ./cmd/render-server
 
-Build-WailsDesktop -ProjectDir "./cmd/studio-desktop" -ExpectedExeName "AutoSyncStudioDesktop.exe"
-Build-WailsDesktop -ProjectDir "./cmd/render-server-desktop" -ExpectedExeName "AutoSyncRenderServerDesktop.exe"
+Build-WailsDesktop -ProjectDir "./cmd/studio-desktop" -ExpectedExeName $studioDesktopExe
+Build-WailsDesktop -ProjectDir "./cmd/render-server-desktop" -ExpectedExeName $renderDesktopExe
 
 Write-Host ""
 Write-Host "Build artifacts:"
-Get-Item "AutoSyncStudioDesktop.exe", "autosync-studio.exe", "AutoSyncRenderServerDesktop.exe", "autosync-render-server.exe" |
+Get-Item $studioDesktopExe, $studioCliExe, $renderDesktopExe, $renderCliExe |
   Select-Object Name, Length, LastWriteTime

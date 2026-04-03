@@ -6,229 +6,692 @@
   <title>AutoSync Render Server</title>
   <style>
     :root {
-      --bg: #10151b;
-      --panel: #171f29;
-      --panel-2: #1e2935;
-      --line: #2d3c4d;
-      --text: #e7eef8;
-      --muted: #9db0c5;
-      --green: #37d39a;
-      --orange: #ff9a3d;
-      --red: #ff647c;
+      --bg: #0f1117;
+      --panel: #1a1d25;
+      --panel-2: #0f1218;
+      --panel-3: #151922;
+      --line: #2a2e38;
+      --line-2: #3a3f4b;
+      --text: #fafafa;
+      --muted: #9ea4b0;
+      --accent: #ff5353;
+      --accent-2: #4f46e5;
+      --success: #7de2b8;
+      --warning: #f4c26a;
+      --danger: #ff8b8b;
+      --info: #8ec8ff;
+      --shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
     }
-    * { box-sizing: border-box; }
-    body {
+
+    * {
+      box-sizing: border-box;
       margin: 0;
-      font-family: "Segoe UI", sans-serif;
-      background: linear-gradient(180deg, #0d1117, #111a24);
-      color: var(--text);
-    }
-    .wrap {
-      width: min(1200px, calc(100% - 32px));
-      margin: 24px auto 40px;
-    }
-    .hero, .panel {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.25);
-    }
-    .hero {
-      padding: 24px;
-      margin-bottom: 18px;
-    }
-    .hero-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 16px;
-    }
-    .hero h1, .panel h2 { margin: 0 0 10px; }
-    .hero p, .muted { color: var(--muted); }
-    .lang-switch {
-      display: flex;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-    .lang-btn {
-      padding: 10px 14px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,.04);
-      color: var(--text);
-      font-size: 12px;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      cursor: pointer;
-    }
-    .lang-btn.active {
-      background: var(--orange);
-      border-color: var(--orange);
-      color: #111;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: 380px 1fr;
-      gap: 18px;
-    }
-    .panel { padding: 20px; }
-    .field { margin-bottom: 12px; }
-    .field label {
-      display: block;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-    .field input, .field textarea, .field select {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 12px 14px;
-      background: var(--panel-2);
-      color: var(--text);
-      font: inherit;
+      padding: 0;
       outline: none;
     }
-    .field textarea { min-height: 96px; resize: vertical; }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
-    button {
-      border: none;
-      border-radius: 14px;
-      padding: 12px 16px;
-      font: inherit;
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Montserrat", "Avenir Next", "Segoe UI", sans-serif;
+      font-size: 13px;
+      letter-spacing: -0.01em;
+    }
+
+    .container {
+      width: min(100%, 1400px);
+      max-width: 1400px;
+      height: 96vh;
+      min-height: 680px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    h1 {
+      color: #fff;
+      font-size: 18px;
       font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+
+    .lang-switch {
+      display: flex;
+      gap: 6px;
+    }
+
+    .lang-btn {
+      min-width: 52px;
+      padding: 8px 10px;
+      background: transparent;
+      border: 1px solid var(--line-2);
+      color: #8b909c;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .lang-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .lang-btn.active {
+      background: var(--accent-2);
+      border-color: var(--accent-2);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35);
+    }
+
+    .hero-copy {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      max-width: 760px;
+    }
+
+    .bundle-info {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 24px;
+      align-items: center;
+    }
+
+    .bundle-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--panel-3);
+      color: #dbeafe;
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    .bundle-chip strong {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .flash {
+      display: none;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel-3);
+    }
+
+    .flash.visible {
+      display: block;
+    }
+
+    .flash-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-bottom: 4px;
+    }
+
+    .flash-body {
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    .flash.info {
+      border-color: #29486b;
+      background: #131c2c;
+      color: var(--info);
+    }
+
+    .flash.success {
+      border-color: #275447;
+      background: #10231d;
+      color: var(--success);
+    }
+
+    .flash.error {
+      border-color: #633642;
+      background: #25151b;
+      color: var(--danger);
+    }
+
+    .layout {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 430px 1fr;
+      gap: 16px;
+    }
+
+    .card {
+      padding: 12px 0 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .card:first-child {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .section-title {
+      margin-bottom: 10px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .section-help {
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .panel-shell {
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: stretch;
+      overflow: hidden;
+      margin-bottom: 10px;
+      border: 1px solid var(--line-2);
+      border-radius: 6px;
+      background: var(--panel-2);
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .input-group:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(255, 83, 83, 0.12);
+    }
+
+    .input-prefix {
+      min-width: 140px;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      border-right: 1px solid var(--line-2);
+      color: #8b909c;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      line-height: 1.3;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    textarea,
+    select {
+      width: 100%;
+      border: none;
+      background: transparent;
+      color: #fff;
+      font: inherit;
+      padding: 10px 12px;
+    }
+
+    textarea {
+      min-height: 108px;
+      line-height: 1.5;
+      resize: vertical;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #667085;
+    }
+
+    select {
+      appearance: none;
       cursor: pointer;
     }
-    .primary { background: var(--orange); color: #111; }
-    .danger { background: var(--red); color: white; }
-    .secondary { background: rgba(255,255,255,.08); color: var(--text); }
-    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
-    .card {
-      background: var(--panel-2);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 14px;
+
+    select option {
+      background: #131824;
+      color: #fff;
     }
-    .card-title { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
-    .card-value { font-size: 24px; margin-top: 8px; }
-    .ok { color: var(--green); }
-    .warn { color: var(--orange); }
-    .list, .logs {
+
+    .input-help {
+      margin: -2px 0 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .options-grid .input-group {
+      margin-bottom: 0;
+    }
+
+    details.advanced {
+      margin-top: 8px;
       border: 1px solid var(--line);
-      border-radius: 16px;
-      background: rgba(0,0,0,.16);
-      padding: 14px;
-      min-height: 180px;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+    }
+
+    details.advanced summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 10px 12px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      user-select: none;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    details.advanced summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .advanced-body {
+      padding: 10px 12px 12px;
+    }
+
+    .advanced-note {
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .actions-inline {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .run-btn {
+      flex: 0 0 auto;
+      min-width: 132px;
+      padding: 10px 14px;
+      border-radius: 6px;
+      border: 1px solid #474d5d;
+      background: #313544;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      transition: transform 0.12s ease, border-color 0.12s ease, opacity 0.12s ease, filter 0.12s ease;
+    }
+
+    .run-btn:hover {
+      transform: translateY(-1px) scale(1.01);
+      border-color: #646b80;
+    }
+
+    .run-btn:active {
+      transform: translateY(0);
+      filter: brightness(1.08);
+    }
+
+    .run-btn:focus-visible {
+      box-shadow: 0 0 0 2px rgba(255, 83, 83, 0.18);
+    }
+
+    .run-btn:disabled {
+      opacity: 0.55;
+      cursor: default;
+      transform: none;
+    }
+
+    .run-btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 2px 8px rgba(255, 83, 83, 0.22);
+    }
+
+    .run-btn.danger {
+      background: #442a30;
+      border-color: #7b4150;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .stat-card {
+      min-height: 94px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel-3);
+    }
+
+    .stat-label {
+      color: #8b909c;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .stat-value {
+      margin-top: 10px;
+      color: #fff;
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .stat-value.ok {
+      color: var(--success);
+    }
+
+    .stat-value.warn {
+      color: var(--warning);
+    }
+
+    .meta-strip {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .meta-box {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .meta-label {
+      color: #8b909c;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-bottom: 6px;
+    }
+
+    .meta-value {
+      color: #fff;
+      font-size: 12px;
+      line-height: 1.45;
       white-space: pre-wrap;
-      font-family: ui-monospace, monospace;
-      overflow: auto;
+      word-break: break-word;
     }
-    @media (max-width: 960px) {
-      .grid { grid-template-columns: 1fr; }
-      .cards { grid-template-columns: 1fr; }
-      .row { grid-template-columns: 1fr; }
-      .hero-top { flex-direction: column; }
+
+    .log-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .subsection-title {
+      color: #fff;
+      font-size: 12px;
+      margin-bottom: 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .log-box {
+      min-height: 176px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #070a10;
+      padding: 12px;
+      color: #bfffe8;
+      white-space: pre-wrap;
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .log-box.logs {
+      min-height: 250px;
+      flex: 1 1 auto;
+    }
+
+    @media (max-width: 1080px) {
+      body {
+        overflow: auto;
+        align-items: stretch;
+      }
+
+      .container {
+        width: 100%;
+        max-width: none;
+        min-height: 100vh;
+        height: auto;
+        border-radius: 0;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .topbar,
+      .options-grid,
+      .status-grid,
+      .meta-strip,
+      .log-grid {
+        grid-template-columns: 1fr;
+        display: grid;
+      }
+
+      .topbar {
+        gap: 12px;
+      }
+
+      .lang-switch,
+      .actions-inline {
+        width: 100%;
+      }
+
+      .actions-inline {
+        flex-direction: column;
+      }
+
+      .input-group {
+        flex-direction: column;
+      }
+
+      .input-prefix {
+        min-width: 0;
+        border-right: none;
+        border-bottom: 1px solid var(--line-2);
+        padding: 8px 12px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <section class="hero">
-      <div class="hero-top">
-        <div>
-          <h1 data-i18n="hero_title">AutoSync Render Server</h1>
-          <p class="muted" data-i18n="hero_subtitle">Отдельный менеджер для `ffmpeg-over-ip-server` на Windows: запускает render-node, показывает активные задачи, подключённых клиентов и логи в реальном времени.</p>
-        </div>
-        <div class="lang-switch">
-          <button class="lang-btn active" id="langRuBtn" type="button">RU</button>
-          <button class="lang-btn" id="langEnBtn" type="button">EN</button>
-        </div>
+  <div class="container">
+    <div class="topbar">
+      <div class="brand">
+        <h1 data-i18n="hero_title">AutoSync Render Server</h1>
+        <p class="hero-copy" data-i18n="hero_subtitle">Отдельный менеджер render-node для Windows. Для обычного запуска достаточно адреса и секрета доступа.</p>
       </div>
-      <div id="bundleInfo" class="muted" style="margin-top: 12px;"></div>
-    </section>
+      <div class="lang-switch">
+        <button class="lang-btn active" id="langRuBtn" type="button">RU</button>
+        <button class="lang-btn" id="langEnBtn" type="button">EN</button>
+      </div>
+    </div>
 
-    <div class="grid">
-      <section class="panel">
-        <h2 data-i18n="config_title">Конфигурация сервера</h2>
-        <div class="field">
-          <label for="serverBinary" data-i18n="label_server_binary">Путь к бинарнику сервера</label>
-          <input id="serverBinary" placeholder="C:\\render-node\\ffmpeg-over-ip-server.exe" data-i18n-placeholder="placeholder_server_binary">
-        </div>
-        <div class="field">
-          <label for="ffmpegPath" data-i18n="label_ffmpeg_path">Путь к patched FFmpeg</label>
-          <input id="ffmpegPath" placeholder="C:\\render-node\\ffmpeg.exe" data-i18n-placeholder="placeholder_ffmpeg_path">
-        </div>
-        <div class="row">
-          <div class="field">
-            <label for="serverAddress" data-i18n="label_address">Адрес</label>
-            <input id="serverAddress" value="0.0.0.0:5050">
+    <div id="bundleInfo" class="bundle-info"></div>
+
+    <div id="flashMessage" class="flash info" aria-live="polite">
+      <div id="flashTitle" class="flash-title">Статус</div>
+      <div id="flashBody" class="flash-body">Можно запускать сервер.</div>
+    </div>
+
+    <div class="layout">
+      <section class="panel-shell">
+        <div class="card">
+          <div class="section-title" data-i18n="config_title">Быстрый запуск</div>
+          <div class="section-help" data-i18n="config_help">Оставьте пути пустыми, если хотите использовать встроенные бинарники приложения.</div>
+
+          <div class="input-group">
+            <span class="input-prefix" data-i18n="label_address">Адрес</span>
+            <input id="serverAddress" type="text" value="0.0.0.0:5050">
           </div>
-          <div class="field">
-            <label for="authSecret" data-i18n="label_auth_secret">Секрет доступа</label>
-            <input id="authSecret" value="change-me">
+
+          <div class="input-group">
+            <span class="input-prefix" data-i18n="label_auth_secret">Секрет доступа</span>
+            <input id="authSecret" type="password" placeholder="Введите секрет доступа">
           </div>
-        </div>
-        <div class="row">
-          <div class="field">
-            <label for="logMode" data-i18n="label_log_mode">Режим логирования</label>
-            <select id="logMode">
-              <option value="stdout">stdout</option>
-              <option value="stderr">stderr</option>
-            </select>
+
+          <div class="actions-inline">
+            <button class="run-btn primary" id="startBtn" type="button" data-i18n="btn_start">Запустить сервер</button>
+            <button class="run-btn danger" id="stopBtn" type="button" data-i18n="btn_stop">Остановить сервер</button>
+            <button class="run-btn" id="refreshBtn" type="button" data-i18n="btn_refresh">Обновить</button>
           </div>
-          <div class="field">
-            <label for="debugFlag" data-i18n="label_debug">Отладка</label>
-            <select id="debugFlag">
-              <option value="true" data-i18n-option="option_true">true</option>
-              <option value="false" data-i18n-option="option_false">false</option>
-            </select>
-          </div>
-        </div>
-        <div class="field">
-          <label for="rewrites" data-i18n="label_rewrites">Rewrites, по одной JSON-строке на правило</label>
-          <textarea id="rewrites">["h264_nvenc","h264_qsv"]
+
+          <details class="advanced" id="advancedDetails">
+            <summary data-i18n="advanced_title">Дополнительно: свои пути и отладка</summary>
+            <div class="advanced-body">
+              <div class="advanced-note" data-i18n="advanced_note">Этот блок нужен только если вы используете свою сборку `ffmpeg-over-ip` или хотите менять debug/rewrite-поведение.</div>
+
+              <div class="input-group">
+                <span class="input-prefix" data-i18n="label_server_binary">Свой сервер</span>
+                <input id="serverBinary" type="text" placeholder="C:\render-node\ffmpeg-over-ip-server.exe" data-i18n-placeholder="placeholder_server_binary">
+              </div>
+
+              <div class="input-help" data-i18n="server_binary_help">Оставьте пустым для встроенного `ffmpeg-over-ip-server.exe`.</div>
+
+              <div class="input-group">
+                <span class="input-prefix" data-i18n="label_ffmpeg_path">Свой FFmpeg</span>
+                <input id="ffmpegPath" type="text" placeholder="C:\render-node\ffmpeg.exe" data-i18n-placeholder="placeholder_ffmpeg_path">
+              </div>
+
+              <div class="input-help" data-i18n="ffmpeg_path_help">Оставьте пустым для встроенного `ffmpeg.exe`.</div>
+
+              <div class="options-grid">
+                <div class="input-group">
+                  <span class="input-prefix" data-i18n="label_log_mode">Логи</span>
+                  <select id="logMode">
+                    <option value="stdout">stdout</option>
+                    <option value="stderr">stderr</option>
+                  </select>
+                </div>
+                <div class="input-group">
+                  <span class="input-prefix" data-i18n="label_debug">Debug</span>
+                  <select id="debugFlag">
+                    <option value="true" data-i18n-option="option_true">true</option>
+                    <option value="false" data-i18n-option="option_false">false</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="input-group" style="margin-top: 10px;">
+                <span class="input-prefix" data-i18n="label_rewrites">Rewrites</span>
+                <textarea id="rewrites">["h264_nvenc","h264_qsv"]
 ["hevc_nvenc","hevc_qsv"]</textarea>
-        </div>
-        <div class="actions">
-          <button class="primary" id="startBtn" type="button" data-i18n="btn_start">Запустить сервер</button>
-          <button class="danger" id="stopBtn" type="button" data-i18n="btn_stop">Остановить сервер</button>
-          <button class="secondary" id="refreshBtn" type="button" data-i18n="btn_refresh">Обновить</button>
+              </div>
+            </div>
+          </details>
         </div>
       </section>
 
-      <section class="panel">
-        <h2 data-i18n="status_title">Статус</h2>
-        <div class="cards">
-          <div class="card">
-            <div class="card-title" data-i18n="card_server">Сервер</div>
-            <div class="card-value" id="serverState">offline</div>
-          </div>
-          <div class="card">
-            <div class="card-title" data-i18n="card_clients">Подключённые клиенты</div>
-            <div class="card-value" id="clientCount">0</div>
-          </div>
-          <div class="card">
-            <div class="card-title" data-i18n="card_jobs">Активные задачи</div>
-            <div class="card-value" id="jobCount">0</div>
-          </div>
-        </div>
+      <section class="panel-shell">
+        <div class="card">
+          <div class="section-title" data-i18n="status_title">Статус</div>
 
-        <div class="row" style="margin-bottom: 12px;">
-          <div>
-            <h3 data-i18n="section_clients">Подключённые клиенты</h3>
-            <div class="list" id="clientsBox" data-i18n="clients_idle">Подключённых клиентов пока нет.</div>
+          <div class="status-grid">
+            <div class="stat-card">
+              <div class="stat-label" data-i18n="card_server">Сервер</div>
+              <div class="stat-value warn" id="serverState">офлайн</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label" data-i18n="card_clients">Подключённые клиенты</div>
+              <div class="stat-value" id="clientCount">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label" data-i18n="card_jobs">Активные задачи</div>
+              <div class="stat-value" id="jobCount">0</div>
+            </div>
           </div>
-          <div>
-            <h3 data-i18n="section_jobs">Активные задачи</h3>
-            <div class="list" id="jobsBox" data-i18n="jobs_idle">Активных задач пока нет.</div>
-          </div>
-        </div>
 
-        <h3 data-i18n="section_logs">Логи</h3>
-        <div class="logs" id="logsBox" data-i18n="logs_idle">Ожидание логов...</div>
+          <div class="meta-strip">
+            <div class="meta-box">
+              <div class="meta-label" data-i18n="meta_runtime">Сессия</div>
+              <div class="meta-value" id="serverMeta">Ожидание запуска</div>
+            </div>
+            <div class="meta-box">
+              <div class="meta-label" data-i18n="meta_config">Конфиг</div>
+              <div class="meta-value" id="configMeta">-</div>
+            </div>
+          </div>
+
+          <div class="log-grid">
+            <div>
+              <div class="subsection-title" data-i18n="section_clients">Подключённые клиенты</div>
+              <div class="log-box" id="clientsBox">Подключённых клиентов пока нет.</div>
+            </div>
+            <div>
+              <div class="subsection-title" data-i18n="section_jobs">Активные задачи</div>
+              <div class="log-box" id="jobsBox">Активных задач пока нет.</div>
+            </div>
+          </div>
+
+          <div class="subsection-title" data-i18n="section_logs">Логи</div>
+          <div class="log-box logs" id="logsBox">Ожидание логов...</div>
+        </div>
       </section>
     </div>
   </div>
